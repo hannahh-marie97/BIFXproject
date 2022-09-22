@@ -4,7 +4,7 @@ seeds <-runif(1000,1,10000)%>%
 
 set.seed(seeds[best])
 rbinom(10,1,0.5)
-
+# counting for each seed in "seeds"
 for(i in 1:length(seeds))
 {
   set.seed(seeds[i])
@@ -18,7 +18,7 @@ for(i in 1:length(seeds))
   }
 }
 
-
+# this is to check for the best seed
 best <- 0
 best_nheads <- -1
 for(i in 1:length(seeds))

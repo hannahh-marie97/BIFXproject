@@ -1,0 +1,17 @@
+---
+title: "Epidemiology for BIFX - Lab 4"
+format: docx
+editor: visual
+---
+
+Here is a DAG:
+
+```{mermaid}
+graph LR
+    D[Lifestyle] --> E(Insulin Resistance)
+    H(Genetics)-->E
+    E --> F(Obesity)
+    F-->G(Type 2 Diabetes)
+    E-->G
+
+```
