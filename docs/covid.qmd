@@ -1,11 +1,6 @@
 ---
 title: "COVID Data Exploration"
-format: 
-  html:
-    theme: 
-      light: flatly
-      dark: darkly
-bibliography: references.bib
+format: docx
 editor: visual
 ---
 
@@ -43,6 +38,7 @@ We'll be using a [COVID-19 dataset from Mexico City](https://bit.ly/3Ou4n2U) tha
 What is presented here is intentionally rough and open ended. After filling in the missing details in the [starter code](https://github.com/BIFX552-22/BIFXproject/blob/main/docs/covid.qmd), what other questions might you have? What other tests and/or visualizations might be interesting?
 
 ```{r}
+<<<<<<< Updated upstream
 # download data if we need to refresh
 # note that the current link below has some changes to the data since this lesson was developed! There are at least 4 variable name changes, and the number of rows is also different. I'm pushing the current version of the small RData file for now, but be aware that there will be some updates to the code needed if we do a refresh. Go to https://bit.ly/3Ou4n2U for updated data.
 if(FALSE)
@@ -53,15 +49,26 @@ if(FALSE)
 
 # only do this formatting step once
 if(FALSE)
+=======
+# download data if we haven't already
+# if(!file.exists('sisver_public.csv'))
+# {
+#     download.file(url = "https://archivo.datos.cdmx.gob.mx/sisver/covid19_sisver_cdmx.csv",
+#               destfile = "sisver_public.csv")
+# }
+
+# only do this formatting step once
+ if(!file.exists('sisver.RData'))
+>>>>>>> Stashed changes
 {
     sisver <- read_csv('sisver_public.csv') %>%
-        rename(dt_symptoms = fecinisi, # date that symptoms started
-               dt_admit = fechreg,     # date admitted to hospital
-               dt_death = fecdef       # death date
+        rename(dt_symptoms = fecha_inicio_sintomas, # date that symptoms started
+               dt_admit = fecha_ingreso,     # date admitted to hospital
+               dt_death = fecha_defuncion       # death date
     ) %>%
-    
+
            # primary outcomes
-    mutate(hospitalized = tipacien == 'HOSPITALIZADO',
+    mutate(hospitalized = tipo_paciente == 'HOSPITALIZADO',
            covid_death = !is.na(dt_death),
            intubation = intubado == 'SI',
            death_intubation = covid_death | intubation,
@@ -91,16 +98,32 @@ if(FALSE)
            age_gt_65 = edad >= 65,                 # age > 65 years
            sex = ifelse(sexo == "MASCULINO",       # sex
                         'M', 'F')) %>%
+<<<<<<< Updated upstream
     
     filter(dt_admit >= "2021-01-01" & dt_admit <= "2021-04-05" &
            hospitalized &
            event_time >= 0 & event_time <= 30) %>%
     
+=======
+
+########################################################################
+    #### Filter data such that we only have individuals with:
+        ### hospital admission date between Jan 1, 2021 and Apr 5, 2021
+        ### individuals were hospitalized
+        ### event time is between 0 and 30 days
+
+
+  filter(dt_admit >= "2021-01-01" & dt_admit <= "2021-04-05" &
+           hospitalized &
+           event_time > 0 & event_time<=30) %>%
+########################################################################
+
+>>>>>>> Stashed changes
     select(dt_symptoms, dt_admit, dt_death, covid_death, event_date,
-           event_time, death_intubation, t_sympt_death, dog, dog_all, 
+           event_time, death_intubation, t_sympt_death, dog, dog_all,
            private, pet_info, antivirals, diabetes, hyperten, obese,
            age_gt_65, sex, sector)
-    
+
     save(sisver, file = 'sisver.RData')
 }else{
     load('sisver.RData')
@@ -156,7 +179,9 @@ Here are Kaplan-Meier plots for our risk factors and confounders.
 make_km_plot <- function(fact)
 {
     # fit survival curve for fact
-    survfit(formula(paste("t_sympt_death ~", fact)), data = sisver) %>%
+  paste("t_sympt_death ~", fact) %>%
+    formula() %>%
+    survfit(data = sisver) %>%
         
         # plot survival curve
         autoplot(conf.int = FALSE) +
@@ -165,6 +190,10 @@ make_km_plot <- function(fact)
         # modifications to plot: 
         ### use `cbbPalette` loaded above for colors
         ### change legend title to match `fact`
+  scale_color_manual(values = cbbPalette[5:6]) +
+  labs(color = fact)
+    
+  
 ########################################################################
 }
 
@@ -194,15 +223,23 @@ sisver_sub <- sisver %>%
 ## filter `sisver` such that sector is not in:
 ## c('CRUZ ROJA', 'ESTATAL', 'IMSS-OPORTUNIDADES', 'SEMAR', 'UNIVERSITARIO')
 ########################################################################
-
+filter(!sector %in% c('CRUZ ROJA', 'ESTATAL', 'IMSS-OPORTUNIDADES', 'SEMAR', 'UNIVERSITARIO'))
 ########################################################################
 # first stacked bar plot
 ## hint: `geom_bar()` is what you want for the stacked bar plot
 ########################################################################
-
+ggplot(sisver_sub, aes(dt_admit, fill = dog_all)) +
+  geom_bar() +
+  scale_y_log10() +
+  scale_fill_manual(values=cbbPalette [4:6])
 ########################################################################
 # grid of stacked bar plots, separated by sector
 ########################################################################
+ggplot(sisver_sub, aes(dt_admit, fill = dog_all)) +
+  geom_bar() +
+  scale_y_log10() +
+  scale_fill_manual(values=cbbPalette[4:6]) +
+  facet_wrap(~sector)
 ```
 
 How does the risk of death change by `sector`, compared to the private sector?
