@@ -1,0 +1,12 @@
+
+#trimmomatic parameters
+trim_minlen: "25"
+trim_window: "4:20"
+trim_clip: "2:40:15"
+
+#reference files
+align_fasta: "data/ecoli_rel606.fasta"
+
+# ploidy
+ 
+ploidy: 1
